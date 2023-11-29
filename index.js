@@ -3,15 +3,12 @@ require('dotenv').config()
 var cors = require('cors')
 var jwt = require('jsonwebtoken');
 const app = express()
-
 app.use(cors())
 app.use(express.json())
 const port = process.env.PORT || 3000
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-const uri = 'mongodb+srv://assignment12:IiaXn6W93P9PHciq@cluster0.sm8afkk.mongodb.net/?retryWrites=true&w=majority'
-
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.sm8afkk.mongodb.net/?retryWrites=true&w=majority`
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -30,11 +27,12 @@ async function run() {
         const guidePost = database.collection("guidePost");
         const loveServices = database.collection("loveproduct");
         const bookingServices = database.collection("bookingservices");
+        const userrating = database.collection("userrating");
 
         // Create Token
         app.post('/jwt', (req, res) => {
             try {
-                const token = jwt.sign(req.body, 'secret', { expiresIn: '1h' });
+                const token = jwt.sign(req.body, process.env.SEQUIRITY, { expiresIn: '1h' });
                 res.send({ token })
             } catch (error) {
                 console.log(error)
@@ -47,7 +45,7 @@ async function run() {
                 return res.status(401).send({ message: "unAuthorize access" })
             }
             const token = req.headers.authorization.split(' ')[1];
-            jwt.verify(token, 'secret', function (err, decoded) {
+            jwt.verify(token, process.env.SEQUIRITY, function (err, decoded) {
                 if (err) {
                     return res.status(401).send({ message: "unAuthorize access" })
                 }
@@ -57,7 +55,6 @@ async function run() {
         }
 
         // Verify admin
-
         const VerifyAdmin = async (req, res, next) => {
             const email = req.decoded.email;
             const query = { email: email }
@@ -68,8 +65,6 @@ async function run() {
             }
             next()
         }
-
-
 
         // Save all User
         app.post('/user', async (req, res) => {
@@ -104,8 +99,6 @@ async function run() {
             res.send(admin)
         })
 
-
-
         // All Users Gate
         app.get('/allUsers', VerifyToken, VerifyAdmin, async (req, res) => {
             const user = await userCollection.find().toArray();
@@ -119,10 +112,6 @@ async function run() {
             const findGuide = user.filter(item => item.role === 'Tour Guide')
             res.send(findGuide)
         })
-
-
-
-
 
         // All Services Gate
         app.get('/allservices', async (req, res) => {
@@ -141,7 +130,6 @@ async function run() {
             const result = await allPackage.insertOne(req.body)
             res.send(result)
         })
-
 
         // Booking Services
         app.post('/servicesbooking', VerifyToken, async (req, res) => {
@@ -170,8 +158,6 @@ async function run() {
             const result = await bookingServices.updateOne(filter, updateDoc);
             res.send(result)
         })
-
-
 
         // All Love Services
         app.post('/loveservices', VerifyToken, async (req, res) => {
@@ -210,7 +196,6 @@ async function run() {
             res.send(result)
         })
 
-
         // User Story Post
         app.post('/userstory', VerifyToken, async (req, res) => {
             const result = await userStory.insertOne(req.body)
@@ -222,13 +207,23 @@ async function run() {
             res.send(result)
         })
 
-
         // Guide post
         app.post('/guidePost', VerifyToken, async (req, res) => {
             const result = await guidePost.insertOne(req.body)
             res.send(result)
         })
 
+        // Guide comment post
+        app.post('/userreview', VerifyToken, async (req, res) => {
+            const result = await userrating.insertOne(req.body)
+            res.send(result)
+        })
+
+        // Guide comment  get
+        app.get('/userreview', VerifyToken, async (req, res) => {
+            const result = await userrating.find({ guide: req.query.email }).toArray()
+            res.send(result)
+        })
 
         // Single type data
         app.get('/touretype', VerifyToken, async (req, res) => {
@@ -236,13 +231,11 @@ async function run() {
             res.send(result)
         })
 
-
         // Get Guide Data
-        app.get('/allguideData', VerifyToken, async (req, res) => {
+        app.get('/allguideData', async (req, res) => {
             const result = await guidePost.find({ userEmail: req.query.email }).toArray()
             res.send(result)
         })
-
 
         // Get story Data
         app.get('/story/:id', VerifyToken, async (req, res) => {
@@ -250,14 +243,11 @@ async function run() {
             res.send(result)
         })
 
-
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
     }
 }
 run().catch(console.dir);
-
-
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
