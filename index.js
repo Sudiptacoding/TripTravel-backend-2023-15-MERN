@@ -235,6 +235,7 @@ async function run() {
             const result = await guidePost.find({ userEmail: req.query.email }).toArray()
             res.send(result)
         })
+
         // Get story Data
         app.get('/story/:id', VerifyToken, async (req, res) => {
             const result = await userStory.findOne({ _id: new ObjectId(req.params.id) })
@@ -250,6 +251,7 @@ run().catch(console.dir);
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
