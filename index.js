@@ -224,7 +224,6 @@ async function run() {
             const result = await userrating.find({ guide: req.query.email }).toArray()
             res.send(result)
         })
-
         // Single type data
         app.get('/touretype', VerifyToken, async (req, res) => {
             const result = await allPackage.find({ category: req.query.type }).toArray()
