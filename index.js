@@ -105,7 +105,6 @@ async function run() {
             res.send(user)
         })
 
-
         // All Users Gate
         app.get('/turegide', async (req, res) => {
             const user = await userCollection.find().toArray();
