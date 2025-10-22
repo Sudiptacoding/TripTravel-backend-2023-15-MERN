@@ -28,7 +28,6 @@ async function run() {
     const loveServices = database.collection("loveproduct");
     const bookingServices = database.collection("bookingservices");
     const userrating = database.collection("userrating");
-    const fakedataHit = database.collection("fakedataHit");
 
     // Create Token
     app.post("/jwt", (req, res) => {
@@ -243,13 +242,12 @@ async function run() {
     app.get("/ping-db", async (req, res) => {
       try {
         const result = await database.command({ ping: 1 });
-        const fakedata = await fakedataHit.insertOne({ hitAt: new Date().toISOString() });
+
         res.json({
           ok: true,
           message: "✅ MongoDB Atlas is awake!",
           result,
           time: new Date().toISOString(),
-          fakedata,
         });
       } catch (error) {
         console.error("❌ Ping failed:", error);
