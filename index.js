@@ -8,7 +8,7 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zsgksis.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://triptravel:s07UTTq2ySKwjLUp@cluster0.zsgksis.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -239,7 +239,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/ping-db", async (req, res) => {
+    app.get("/", async (req, res) => {
       try {
         const result = await database.command({ ping: 1 });
 
@@ -261,9 +261,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+
 
 // ✅ MongoDB Ping Route (to keep Atlas active)
 
